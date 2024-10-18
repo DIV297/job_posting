@@ -1,24 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Register from "./Components/Register/Register";
+import Verify from "./Components/Register/Verify";
+
+import TopNavbar from "./Components/Navbar/Top";
+import LeftSidebar from "./Components/Navbar/LeftSide";
+import Home from "./Components/Home/Home";
+import JobForm from "./Components/Home/AddJob";
+import { Outlet } from "react-router-dom";
+
+function Layout() {
+  return (
+    <>
+      <TopNavbar />
+      <LeftSidebar />
+      <div className="ml-20 mt-16 p-6">
+        {/* Render the child routes here */}
+        <Outlet />
+      </div>
+    </>
+  );
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        {/* Routes without layout */}
+        <Route path="/" element={<Register />} />
+        <Route path="/verify" element={<Verify />} />
+
+        {/* Wrap routes that need the layout */}
+        <Route element={<Layout />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/jobform" element={<JobForm />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 
