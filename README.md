@@ -31,13 +31,13 @@ node index.js
 https://jobposting-frontend-five.vercel.app/
 backend is deployed in render.com and frontend is deployed in vercel
 
-## Features
-Companies can register by filling details
-Companies needs to under email and phoneNumber verification
-after that companies can login by using their password
-Companies can add job after login which users will will getting notifications
-There are 3 email templates (basic, intermediate and advanced) for emails
-Logged In company can see the added jobs in dashboard
+**Features**
+Company Registration: Companies can register by providing necessary details.
+Email & Phone Verification: Two-step verification process for registering companies.
+Company Login: After verification, companies can log in using their credentials.
+Job Posting: Companies can add job listings after logging in.
+Company Dashboard: Registered companies can see the jobs they have posted.
+Notifications: Users will get notifications about new job postings.
 
 ## Implementation 
 Twilio account is used for mobile number verification
