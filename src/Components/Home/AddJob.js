@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import useStore from '../../store/company'; // Assuming you're using Zustand for the token
+import { useNavigate } from 'react-router-dom';
+import useStore from '../../store/company';
+import { classnames } from '../../constants/classnames';
+import { buttonPrimary } from '../../constants/colors';
+import { addJobHeading, borderFocus } from '../../constants/style';
 
 const JobForm = () => {
   const [candidates, setCandidates] = useState([]);
@@ -9,13 +13,32 @@ const JobForm = () => {
   const [jobDescription, setJobDescription] = useState('');
   const [experienceLevel, setExperienceLevel] = useState('');
   const [endDate, setEndDate] = useState('');
-  const token = useStore((state) => state.token); // Fetching the token from Zustand store
+  const [templateType, setTemplateType] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailError, setEmailError] = useState(''); 
+
+  const token = useStore((state) => state.token);
+  const navigate = useNavigate();
+
+  const isFormValid = jobTitle && jobDescription && experienceLevel && endDate && templateType && candidates.length > 0;
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const addCandidate = (e) => {
-    e.preventDefault();
-    if (candidateInput && !candidates.includes(candidateInput)) {
-      setCandidates([...candidates, candidateInput]);
-      setCandidateInput('');
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (candidateInput && !candidates.includes(candidateInput)) {
+        if (validateEmail(candidateInput)) {
+          setCandidates([...candidates, candidateInput]);
+          setCandidateInput('');
+          setEmailError(''); // Clear error if email is valid
+        } else {
+          setEmailError('Please enter a valid email address'); // Set error if email is invalid
+        }
+      }
     }
   };
 
@@ -26,69 +49,68 @@ const JobForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Create the job data object
     const jobData = {
       jobTitle,
       jobDescription,
       experienceLevel,
       candidates,
       endDate,
+      templateType,
     };
 
+    setIsSubmitting(true); 
+
     try {
-      const response = await axios.post('http://localhost:5000/api/company', jobData, {
+      const response = await axios.post(`${process.env.REACT_APP_BASEURL}/api/company`, jobData, {
         headers: {
-          Authorization: `Bearer ${token}`, // Include the token in the headers
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.data.success) {
-        // Handle successful job creation, e.g., reset the form or show a success message
-        console.log('Job added successfully:', response.data.data);
-        // Reset the form
-        setJobTitle('');
-        setJobDescription('');
-        setExperienceLevel('');
-        setCandidates([]);
-        setCandidateInput('');
-        setEndDate('');
+        navigate('/home');
       }
     } catch (error) {
       console.error('Failed to add job:', error);
+    } finally {
+      setIsSubmitting(false); 
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-white p-6 rounded-md shadow-md w-full max-w-lg">
+    <div className="mt-4 flex items-center">
+      <div className="bg-white w-full max-w-3xl">
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-1">Job Title</label>
+          <div className={classnames(addJobHeading)}>
+            <label className="block text-gray-700 font-medium mt-1 w-1/3 text-right">Job Title</label>
             <input
               type="text"
               value={jobTitle}
               onChange={(e) => setJobTitle(e.target.value)}
               placeholder="Enter Job Title"
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500"
+              className={classnames("w-full px-4 py-2 border rounded-md", borderFocus)}
+              required
             />
           </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-1">Job Description</label>
+          <div className={classnames(addJobHeading)}>
+            <label className="block text-gray-700 font-medium mt-1 w-1/3 text-right">Job Description</label>
             <textarea
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
               placeholder="Enter Job Description"
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500 h-24"
+              className={classnames("w-full px-4 py-2 border rounded-md h-24", borderFocus)}
+              required
             />
           </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-1">Experience Level</label>
+          <div className={classnames(addJobHeading)}>
+            <label className="block text-gray-700 font-medium mt-1 w-1/3 text-right">Experience Level</label>
             <select
               value={experienceLevel}
               onChange={(e) => setExperienceLevel(e.target.value)}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500"
+              className={classnames("w-full px-4 py-2 border rounded-md", borderFocus, experienceLevel ? "" : "text-gray-400")}
+              required
             >
               <option value="" disabled>Select Experience Level</option>
               <option value="entry">Entry Level</option>
@@ -97,59 +119,71 @@ const JobForm = () => {
             </select>
           </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-1">Add Candidate</label>
-            <div className="flex items-center space-x-2">
-              <input
-                type="email"
-                value={candidateInput}
-                onChange={(e) => setCandidateInput(e.target.value)}
-                placeholder="Enter candidate email"
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500"
-              />
-              <button
-                onClick={addCandidate}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-              >
-                Add
-              </button>
-            </div>
+          <div className={classnames(addJobHeading)}>
+            <label className="block text-gray-700 font-medium mt-1 w-1/3 text-right">Template Type</label>
+            <select
+              value={templateType}
+              onChange={(e) => setTemplateType(e.target.value)}
+              className={classnames("w-full px-4 py-2 border rounded-md", borderFocus, templateType ? "" : "text-gray-400")}
+              required
+            >
+              <option value="" disabled>Select Template Type</option>
+              <option value="BASIC">Basic</option>
+              <option value="INTERMEDIATE">Intermediate</option>
+              <option value="ADVANCED">Advanced</option>
+            </select>
+          </div>
 
-            {/* Display added candidates */}
-            <div className="mt-2">
+          <div className={classnames(addJobHeading)}>
+            <label className="block text-gray-700 font-medium mt-1 w-1/3 text-right">Add Candidate</label>
+            <div className={classnames("relative flex items-center border rounded-md px-4 py-2 w-full h-full", borderFocus)}>
               {candidates.map((candidate, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center bg-gray-200 text-sm text-gray-700 py-1 px-3 rounded-full mr-2 mt-2"
+                  className="inline-flex items-center bg-gray-200 text-sm text-gray-700 py-1 px-3 rounded-full mr-2"
                 >
                   {candidate}
                   <button
+                    type="button"
                     onClick={() => removeCandidate(candidate)}
-                    className="ml-2 text-red-500 hover:text-red-700"
+                    className="ml-2"
                   >
                     &times;
                   </button>
                 </span>
               ))}
+              <input
+                type="email"
+                value={candidateInput}
+                onChange={(e) => setCandidateInput(e.target.value)}
+                onKeyDown={addCandidate}
+                placeholder="Add Candidate (Email)"
+                className="w-full focus:outline-none"
+              />
             </div>
           </div>
+            {emailError && <div className="text-red-500 text-sm mb-1 w-full text-right">{emailError}</div>} 
 
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-1">End Date</label>
+          <div className={classnames(addJobHeading)}>
+            <label className="block text-gray-700 font-medium mt-1 w-1/3 text-right">End Date</label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500"
+              className={classnames("w-full px-4 py-2 border rounded-md", borderFocus, endDate ? "" : "text-gray-400")}
+              required
             />
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
-          >
-            Send
-          </button>
+          <div className="w-full relative">
+            <button
+              type="submit"
+              className={classnames(buttonPrimary, "w-fit px-4 text-white py-2 rounded-md hover:bg-blue-600  absolute right-0",(!isFormValid || isSubmitting)?"opacity-50 hover:shadow-lg":"")}
+              disabled={!isFormValid || isSubmitting}
+            >
+              {isSubmitting ? 'Submitting...' : 'Send'}
+            </button>
+          </div>
         </form>
       </div>
     </div>

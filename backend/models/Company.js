@@ -8,7 +8,8 @@ const Company = mongoose.Schema({
     phoneNumber: {
         type: String,
         default:"",
-        unique:true
+        unique:true,
+        index:true
     },
     companyName: {
         type: String,
@@ -17,7 +18,8 @@ const Company = mongoose.Schema({
     companyEmail: {
         type: String,
         default:"",
-        unique: true
+        unique: true,
+        index:true
     },
     empSize: {
         type: Number,
@@ -38,7 +40,11 @@ const Company = mongoose.Schema({
     isEmailVerified: {
         type: Boolean,  // Store OTP as string for email verification
         default: false
-    }
+    },
+    password: {
+        type: String,  // Store OTP as string for email verification
+        default: ""
+    },
 },
     {
         timestamps: true

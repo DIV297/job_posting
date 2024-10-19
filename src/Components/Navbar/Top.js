@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import useStore from '../../store/company';
 import { Navigate, useNavigate } from 'react-router';
+import { classnames } from '../../constants/classnames';
+import { borderTop } from '../../constants/colors';
 
 const TopNavbar = () => {
   const navigate = useNavigate();
@@ -15,7 +17,7 @@ const TopNavbar = () => {
   useEffect(() => {
     const fetchCompanyDetails = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/company', {
+        const response = await axios.get(`${process.env.REACT_APP_BASEURL}/api/company`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -25,6 +27,7 @@ const TopNavbar = () => {
           setCompanyName(response.data.data.name);
           setEmail(response.data.data.companyEmail); // Assuming email is in the response
           setPhone(response.data.data.phoneNumber); // Assuming phone is in the response
+          navigate('/home')
         }
         else navigate('/')
       } catch (error) {
@@ -34,6 +37,7 @@ const TopNavbar = () => {
     };
 
     fetchCompanyDetails();
+    //eslint-disable-next-line
   }, [token]);
 
   const handleLogout = () => {
@@ -42,35 +46,41 @@ const TopNavbar = () => {
   };
 
   return (
-    <div className="w-full flex justify-between items-center p-4 bg-white shadow-md fixed top-0 z-10">
+    <div className={classnames(`w-full flex justify-between items-center p-4 px-8 bg-white fixed top-0 z-10`, token ? "shadow-sm" : "")}>
       {/* Logo */}
-      <div className="text-lg font-bold text-blue-600">Covette</div>
+      <div className="text-lg font-bold text-blue-600">
+        <img src="/logo.svg" alt="Covette Logo" className="" />
+      </div>
 
       {/* Right Side */}
       <div className="flex items-center space-x-4">
         <a href="#" className="text-gray-600">Contact</a>
         <div className="relative">
-          {/* Profile Icon */}
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center bg-gray-200 text-gray-600 px-3 py-1 rounded-md focus:outline-none"
-          >
-            <i className="fas fa-user-circle mr-2"></i> 
-
-            {companyName || 'Your Name'}
-          </button>
+          {token && (
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className={classnames("flex items-center text-gray-600 px-3 py-1 rounded-md")}
+            >
+              <i className="fas fa-user-circle mr-2"></i>
+              {companyName || 'Your Name'}
+              <span
+                className={classnames("ml-2 transition-transform transform inline-block border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-gray-500", dropdownOpen?"rotate-180":"")}
+              />
+            </button>
+          )}
 
           {/* Dropdown Menu */}
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-20">
-              <div className="px-4 py-2 text-gray-600">
-                <div>Email: {email}</div>
-                <div>Phone: {phone}</div>
+          {dropdownOpen && token && (
+            <div className="absolute right-0 mt-2 w-fit bg-white shadow-lg rounded-md z-20">
+              <div className="px-4 py-2 text-gray-600 text-md font-semibold">
+                <div> {email}</div>
+                <div> {phone}</div>
               </div>
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-200"
               >
+                <i className="fas fa-sign-out-alt mr-2"></i>
                 Logout
               </button>
             </div>

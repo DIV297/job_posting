@@ -16,13 +16,11 @@ const authenticateToken = async (req, res, next) => {
         if (!company) {
             return res.status(404).json({ success: false, message: 'Company not found' });
         }
-
-        // Attach company details to the request object
         req.user = company;
-        next(); // Call the next middleware or route handler
+        next(); 
     } catch (error) {
         console.error(error);
-        return res.status(403).json({ success: false, message: 'Invalid token' });
+        return res.status(403).json({ success: false, message: 'Invalid token',error:error.message });
     }
 };
 

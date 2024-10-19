@@ -7,11 +7,11 @@ import LeftSidebar from "./Components/Navbar/LeftSide";
 import Home from "./Components/Home/Home";
 import JobForm from "./Components/Home/AddJob";
 import { Outlet } from "react-router-dom";
+import Login from "./Components/Register/Login";
 
 function Layout() {
   return (
     <>
-      <TopNavbar />
       <LeftSidebar />
       <div className="ml-20 mt-16 p-6">
         {/* Render the child routes here */}
@@ -24,9 +24,11 @@ function Layout() {
 function App() {
   return (
     <Router>
+      <TopNavbar />
       <Routes>
         {/* Routes without layout */}
         <Route path="/" element={<Register />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/verify" element={<Verify />} />
 
         {/* Wrap routes that need the layout */}
