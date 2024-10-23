@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const { generateEmailBody } = require('./emailTemplates');
-const EMAIL_NODEMAILER = process.env.EMAIL_NODEMAILER || "yizr ctue koep jceh"
-const EMAIL = process.env.EMAIL || "divbajaj297@gmail.com"
+const EMAIL_NODEMAILER = process.env.EMAIL_NODEMAILER
+const EMAIL = process.env.EMAIL
 
 const sendEmailToCandidates = async (candidates, jobTitle, jobDescription, experienceLevel, endDate, templateType) => {
     // Set up the nodemailer transport
