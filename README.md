@@ -6,6 +6,16 @@
 
 ## Prerequisite 
 install node in local pc
+also update .env file present in backend folder to run perfectly
+There are fields you need to set up
+DATABASE_URL = 
+PORT = 5000
+TWILIO_AUTH_TOKEN = 
+TWILIO_ACCOUNT_SID = 
+TWILIO_PHONE_NUMBER = 
+EMAIL_NODEMAILER = 
+EMAIL = 
+JWT_SECRET = secret
 # How to Run
 ## Frontend
 ### Install nodemodules
